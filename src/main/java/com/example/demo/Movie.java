@@ -16,6 +16,7 @@ public class Movie {
     private String mood;
     private String genre;
     private String director;
+    @Column(name = "`cast`")
     private String cast;
     private String runtime;
 

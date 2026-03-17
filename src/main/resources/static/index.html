@@ -133,6 +133,8 @@
             });
 
         // --- 2. Movie Fetching Logic ---
+        let moviesData = []; // Store movie data globally to avoid onclick escaping issues
+
         function getMovies(mood) {
             const resultsDiv = document.getElementById('movie-results');
             resultsDiv.innerHTML = `<p style="grid-column: 1/-1; font-size:1.2rem;">Scanning ${mood} vibes...</p>`;
@@ -140,22 +142,16 @@
             fetch('/api/movies/' + mood)
                 .then(res => res.json())
                 .then(movies => {
+                    moviesData = movies.slice(0, 24);
                     resultsDiv.innerHTML = "";
-                    if (movies.length === 0) {
+                    if (moviesData.length === 0) {
                         resultsDiv.innerHTML = `<p style="color:#e50914; grid-column: 1/-1;">No movies found for this mood yet!</p>`;
                         return;
                     }
 
-                    // Performance Tip: Limit to 24 movies for smoother scrolling on 8GB RAM
-                    movies.slice(0, 24).forEach(m => {
-                        const safeTitle = m.title ? m.title.replace(/'/g, "\\'") : "Unknown";
-                        const safeDesc = m.description ? m.description.replace(/'/g, "\\'") : "No description.";
-                        const safeDirector = m.director ? m.director.replace(/'/g, "\\'") : "N/A";
-                        const safeCast = m.cast ? m.cast.replace(/'/g, "\\'") : "N/A";
-                        const safeOtt = m.ottPlatforms ? m.ottPlatforms.replace(/'/g, "\\'") : "N/A";
-
+                    moviesData.forEach((m, index) => {
                         resultsDiv.innerHTML += `
-                            <div class="movie-card" onclick="showDetails('${safeTitle}', '${safeDesc}', '${m.trailerUrl}', '${safeOtt}', '${safeDirector}', '${safeCast}', '${m.runtime}')">
+                            <div class="movie-card" onclick="showDetails(${index})">
                                 <div class="movie-card-info">
                                     <h4>${m.title}</h4>
                                     <p style="color:#888; font-size:0.85rem; margin:8px 0;">${m.genre} • ${m.runtime}</p>
@@ -169,22 +165,25 @@
         }
 
         // --- 3. Modal Logic ---
-        function showDetails(title, desc, trailer, ott, director, cast, runtime) {
+        function showDetails(index) {
+            const m = moviesData[index];
+            if (!m) return;
+
             const modal = document.getElementById("movieModal");
             const modalBody = document.getElementById("modal-body");
-            
+
             modalBody.innerHTML = `
-                <iframe src="${trailer}" allowfullscreen></iframe>
+                <iframe src="${m.trailerUrl}" allowfullscreen></iframe>
                 <div class="modal-info">
-                    <h1 style="color:#e50914; margin:0 0 10px 0; font-size:2.5rem;">${title}</h1>
-                    <p style="font-size:1.1rem; color:#fff;">${runtime} | ${director}</p>
-                    <p style="margin:20px 0; line-height:1.6; color:#bbb;">${desc}</p>
-                    <p><strong>Cast:</strong> ${cast}</p>
-                    <p><strong>Available on:</strong> <span style="color:#e50914; font-weight:bold;">${ott}</span></p>
+                    <h1 style="color:#e50914; margin:0 0 10px 0; font-size:2.5rem;">${m.title}</h1>
+                    <p style="font-size:1.1rem; color:#fff;">${m.runtime} | ${m.director}</p>
+                    <p style="margin:20px 0; line-height:1.6; color:#bbb;">${m.description}</p>
+                    <p><strong>Cast:</strong> ${m.cast}</p>
+                    <p><strong>Available on:</strong> <span style="color:#e50914; font-weight:bold;">${m.ottPlatforms}</span></p>
                 </div>
             `;
             modal.style.display = "block";
-            document.body.style.overflow = "hidden"; // Stop background scroll
+            document.body.style.overflow = "hidden";
         }
 
         function closeModal() {
