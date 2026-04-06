@@ -3,6 +3,7 @@ package com.example.demo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,7 @@ public class UserController {
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setName(name);
-            newUser.setQuizCompleted(true);
+            newUser.setQuizCompleted(false);  // New users must complete quiz first
             return userRepository.save(newUser);
         });
 
@@ -45,6 +46,23 @@ public class UserController {
         response.put("name", user.getName());
         response.put("quizCompleted", user.isQuizCompleted());
 
+        return response;
+    }
+
+    // Called when user finishes the onboarding quiz
+    @PostMapping("/complete-quiz")
+    public Map<String, Object> completeQuiz(@AuthenticationPrincipal OAuth2User principal) {
+        Map<String, Object> response = new HashMap<>();
+        if (principal == null) {
+            response.put("success", false);
+            return response;
+        }
+        String email = principal.getAttribute("email");
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setQuizCompleted(true);
+            userRepository.save(user);
+        });
+        response.put("success", true);
         return response;
     }
 }

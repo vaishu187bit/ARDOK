@@ -14,18 +14,18 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // ── Chain 1: REST API routes (stateless, returns 401 instead of OAuth redirect) ──
+    // ── Chain 1: Movie API only (stateless, returns 401 not redirect) ──
+    // Narrowed to /api/movies/** ONLY — user endpoints need OAuth2 session
     @Bean
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/**")
+            .securityMatcher("/api/movies/**")
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/movies/**", "/api/user/status").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -33,15 +33,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ── Chain 2: Web/browser routes (stateful, OAuth2 login redirect) ──
+    // ── Chain 2: All other routes — stateful, OAuth2 session available ──
+    // /api/user/** lands here so @AuthenticationPrincipal works correctly
     @Bean
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/image.png")
-                .permitAll()
+                .requestMatchers(
+                    "/", "/index.html", "/quiz.html",
+                    "/static/**", "/css/**", "/image.png",
+                    "/lighthouse-poster.jpg", "/about-time-poster.jpg",
+                    "/api/user/status", "/api/user/complete-quiz"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

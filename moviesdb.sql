@@ -56,7 +56,7 @@ INSERT INTO movies (title, mood, genre, description, director, cast, runtime, tr
 ('Crazy, Stupid, Love', 'Happy', 'Romantic Comedy',
  'A middle-aged man reinvents himself after his wife asks for a divorce. With help from a young Casanova, he navigates dating again — only for their lives to comically intersect in unexpected ways.',
  'Glenn Ficarra, John Requa', 'Steve Carell, Ryan Gosling, Emma Stone', '1h 58m',
- 'https://www.youtube.com/embed/e7QFTT60L18', 'Netflix, Prime Video', 7.4),
+ 'https://www.youtube.com/embed/flvz5RMRx7E', 'Netflix, Prime Video', 7.4),
 
 ('Knives Out', 'Happy', 'Comedy Mystery',
  'When a famous crime novelist is found dead, a brilliant detective investigates his eccentric family. Packed with wit, sharp twists, and a stellar ensemble cast, this is a modern Agatha Christie delight.',
@@ -67,7 +67,7 @@ INSERT INTO movies (title, mood, genre, description, director, cast, runtime, tr
 ('The Pursuit of Happyness', 'Sad', 'Drama',
  'Based on a true story — Chris Gardner invests his life savings in a bone-density scanner, only to find himself homeless with his young son. Despite overwhelming odds, he fights to build a better life. An emotional journey about determination and the unbreakable bond between father and son.',
  'Gabriele Muccino', 'Will Smith, Jaden Smith, Thandie Newton', '1h 57m',
- 'https://www.youtube.com/embed/89Kq8SDyvfg', 'Netflix, Prime Video', 8.0),
+ 'https://www.youtube.com/embed/DMOBlEcRuw8', 'Netflix, Prime Video', 8.0),
 
 ('Schindler''s List', 'Sad', 'Historical Drama',
  'The true story of Oskar Schindler, a German businessman who saved over a thousand Jewish refugees during the Holocaust by employing them in his factories. Spielberg''s masterpiece is a devastating and deeply human portrait of war and compassion.',
@@ -82,7 +82,7 @@ INSERT INTO movies (title, mood, genre, description, director, cast, runtime, tr
 ('A Beautiful Mind', 'Sad', 'Drama',
  'The story of the brilliant but troubled mathematician John Nash, who made a discovery that changed the course of math and economics — and his harrowing battle with paranoid schizophrenia that nearly destroyed him.',
  'Ron Howard', 'Russell Crowe, Jennifer Connelly, Ed Harris', '2h 15m',
- 'https://www.youtube.com/embed/YSzMpFIABOw', 'Netflix', 8.2),
+ 'https://www.youtube.com/embed/9wZM7CQY130', 'Netflix', 8.2),
 
 -- ===== MIND-BENDING =====
 ('The Matrix', 'Mind-bending', 'Sci-Fi Action',
@@ -177,17 +177,17 @@ INSERT INTO movies (title, mood, genre, description, director, cast, runtime, tr
 ('Chef', 'Chill', 'Drama Comedy',
  'A head chef quits his restaurant job to start a food truck, rediscovering his passion for food and reconnecting with his son along the way. A warm, feel-good film that will make you hungry and happy.',
  'Jon Favreau', 'Jon Favreau, John Leguizamo, Sofía Vergara', '1h 54m',
- 'https://www.youtube.com/embed/FlsBObg-1BQ', 'Netflix, Prime Video', 7.3),
+ 'https://www.youtube.com/embed/qK-ZUFX5fnk', 'Netflix, Prime Video', 7.3),
 
 ('Julie & Julia', 'Chill', 'Drama Comedy',
  'Two parallel stories: Julia Child''s discovery of cooking in 1950s Paris, and Julie Powell''s 2002 project to cook all 524 of Child''s recipes in one year. A warm, cozy film perfect for a lazy evening.',
  'Nora Ephron', 'Meryl Streep, Amy Adams, Stanley Tucci', '2h 3m',
- 'https://www.youtube.com/embed/G5xFJe3LHCM', 'Netflix, Hulu', 6.9),
+ 'https://www.youtube.com/embed/ozRK7VXQl-k', 'Netflix, Hulu', 6.9),
 
 ('About Time', 'Chill', 'Romantic Drama',
  'A young man discovers he can time travel and uses this ability to find love and live a better life. This warm, gentle film by Richard Curtis is ultimately about slowing down to appreciate the ordinary moments of life.',
  'Richard Curtis', 'Domhnall Gleeson, Rachel McAdams, Bill Nighy', '2h 3m',
- 'https://www.youtube.com/embed/yNYiKRjYEXI', 'Netflix, Peacock', 7.8),
+ 'https://www.youtube.com/embed/7OIFdWk83no', 'Netflix, Peacock', 7.8),
 
 -- ===== QUIRKY =====
 ('The Grand Budapest Hotel', 'Quirky', 'Comedy Drama',
@@ -198,12 +198,12 @@ INSERT INTO movies (title, mood, genre, description, director, cast, runtime, tr
 ('Scott Pilgrim vs. the World', 'Quirky', 'Action Comedy',
  'A 22-year-old slacker must defeat his new girlfriend''s seven evil exes in order to win her heart. Edgar Wright''s pop-culture explosion is a love letter to video games, comics, and heartbreak all at once.',
  'Edgar Wright', 'Michael Cera, Mary Elizabeth Winstead, Kieran Culkin', '1h 52m',
- 'https://www.youtube.com/embed/7wd5KEaOtm0', 'Netflix', 7.5),
+ 'https://www.youtube.com/embed/7wd5KEaOtm4', 'Netflix', 7.5),
 
 ('Juno', 'Quirky', 'Comedy Drama',
  'A sharp-tongued teenager navigates an unplanned pregnancy with wit and heart, deciding to give the baby up for adoption. Filled with quirky charm, a fantastic soundtrack, and a breakout performance by Ellen Page.',
  'Jason Reitman', 'Elliot Page, Michael Cera, Jennifer Garner', '1h 36m',
- 'https://www.youtube.com/embed/AXFBzmPQ7B0', 'Hulu, Disney+', 7.4),
+ 'https://www.youtube.com/embed/K0SKf0K3bxg', 'Hulu, Disney+', 7.4),
 
 ('Little Miss Sunshine', 'Quirky', 'Comedy Drama',
  'A dysfunctional family piles into a rusty VW bus to drive their little daughter to a beauty pageant. Through mishaps and mayhem, they learn to embrace their flaws and love each other unconditionally.',

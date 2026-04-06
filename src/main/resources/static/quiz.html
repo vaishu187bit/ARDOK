@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARDOK — Tell Us Your Vibe</title>
+    <meta name="description" content="ARDOK onboarding quiz — tell us what kind of movies you love.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════
+           TOKENS
+        ═══════════════════════════════ */
+        :root {
+            --bg:          #0b0b0f;
+            --bg-card:     #16161e;
+            --accent:      #00e054;
+            --accent-glow: rgba(0,224,84,0.15);
+            --purple:      #7B2FBE;
+            --purple-glow: rgba(123,47,190,0.35);
+            --cyan:        #40bcf4;
+            --text:        #e8e8f0;
+            --muted:       #8888a0;
+            --dim:         #55556a;
+            --border:      rgba(255,255,255,0.08);
+            --glass:       rgba(255,255,255,0.04);
+            --tr:          0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        [data-theme="light"] {
+            --bg:      #f2f2f8;
+            --bg-card: #ffffff;
+            --text:    #1a1a2e;
+            --muted:   #5a5a7a;
+            --dim:     #9090b0;
+            --border:  rgba(0,0,0,0.08);
+            --glass:   rgba(0,0,0,0.03);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── ambient glow blobs ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(123,47,190,0.15) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(0,224,84,0.08)   0%, transparent 55%),
+                radial-gradient(ellipse at 70% 10%, rgba(64,188,244,0.06)  0%, transparent 45%);
+            pointer-events: none;
+            animation: blobAnim 18s ease-in-out infinite alternate;
+        }
+        @keyframes blobAnim {
+            0%   { transform: scale(1)   rotate(0deg); }
+            100% { transform: scale(1.05) rotate(3deg); }
+        }
+
+        /* ═══════════════════════════════
+           NAVBAR
+        ═══════════════════════════════ */
+        .navbar {
+            position: relative; z-index: 10;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 60px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(11,11,15,0.6);
+            backdrop-filter: blur(20px);
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem; font-weight: 900; letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-decoration: none;
+        }
+        .nav-pill {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--accent);
+            border: 1px solid rgba(0,224,84,0.3);
+            background: rgba(0,224,84,0.08);
+            padding: 4px 14px; border-radius: 50px;
+        }
+
+        /* ═══════════════════════════════
+           MAIN CONTAINER
+        ═══════════════════════════════ */
+        .quiz-wrapper {
+            position: relative; z-index: 1;
+            flex: 1; display: flex;
+            flex-direction: column; align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ── progress bar ── */
+        .progress-bar-wrap {
+            width: 100%; max-width: 640px;
+            margin-bottom: 36px;
+        }
+        .progress-meta {
+            display: flex; justify-content: space-between;
+            font-size: 0.7rem; font-weight: 600; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--dim);
+            margin-bottom: 10px;
+        }
+        .progress-track {
+            width: 100%; height: 3px;
+            background: var(--border);
+            border-radius: 50px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--accent));
+            border-radius: 50px;
+            transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* ── slide card ── */
+        .slide-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 52px;
+            width: 100%; max-width: 640px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            animation: slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes slideUp {
+            from { opacity:0; transform: translateY(30px) scale(0.97); }
+            to   { opacity:1; transform: translateY(0)    scale(1); }
+        }
+        .slide-card.exit {
+            animation: slideDown 0.3s ease forwards;
+        }
+        @keyframes slideDown {
+            to { opacity:0; transform: translateY(-20px) scale(0.97); }
+        }
+
+        .slide-emoji {
+            font-size: 2.8rem;
+            margin-bottom: 14px;
+            display: block;
+        }
+        .slide-q-num {
+            font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px;
+            color: var(--accent); margin-bottom: 8px;
+        }
+        .slide-question {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem; font-weight: 900;
+            line-height: 1.2; color: var(--text);
+            margin-bottom: 8px;
+        }
+        .slide-hint {
+            font-size: 0.82rem; color: var(--muted);
+            font-weight: 400; margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        /* ── option grid ── */
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+        .options-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .options-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .options-grid.cols-1 { grid-template-columns: 1fr; }
+
+        .opt-btn {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--glass);
+            border: 1.5px solid var(--border);
+            border-radius: 14px; padding: 14px 18px;
+            cursor: pointer; text-align: left;
+            transition: var(--tr); color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem; font-weight: 500;
+            user-select: none; position: relative; overflow: hidden;
+        }
+        .opt-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--opt-color, var(--accent));
+            opacity: 0; transition: var(--tr);
+            border-radius: inherit;
+        }
+        .opt-btn:hover::before,
+        .opt-btn.selected::before { opacity: 0.1; }
+
+        .opt-btn:hover {
+            border-color: var(--opt-color, var(--accent));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .opt-btn.selected {
+            border-color: var(--opt-color, var(--accent));
+            box-shadow: 0 0 0 1px var(--opt-color, var(--accent)),
+                        0 8px 28px rgba(0,0,0,0.3);
+        }
+        .opt-btn.selected .opt-check { opacity: 1; }
+
+        .opt-emoji { font-size: 1.4rem; flex-shrink: 0; position: relative; z-index: 1; }
+        .opt-label { position: relative; z-index: 1; line-height: 1.35; }
+        .opt-label small { display: block; font-size: 0.7rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+        .opt-check {
+            margin-left: auto; flex-shrink: 0;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--opt-color, var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; color: #000; font-weight: 900;
+            opacity: 0; transition: var(--tr);
+            position: relative; z-index: 1;
+        }
+
+        /* ── age slider question ── */
+        .age-display {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; font-weight: 900;
+            color: var(--accent); text-align: center;
+            margin-bottom: 12px; line-height: 1;
+        }
+        .age-label {
+            font-size: 0.75rem; text-align: center;
+            color: var(--muted); margin-bottom: 28px;
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%; height: 4px; border-radius: 50px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--border) 0%);
+            outline: none; cursor: pointer;
+            margin-bottom: 8px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(0,224,84,0.2);
+            cursor: pointer; transition: var(--tr);
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 8px rgba(0,224,84,0.15);
+        }
+        .range-labels {
+            display: flex; justify-content: space-between;
+            font-size: 0.7rem; color: var(--dim);
+        }
+
+        /* ── navigation ── */
+        .slide-nav {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-top: 36px;
+            gap: 12px;
+        }
+        .btn-back {
+            background: none; border: 1.5px solid var(--border);
+            border-radius: 50px; padding: 10px 24px;
+            font-size: 0.82rem; font-weight: 600;
+            color: var(--muted); cursor: pointer;
+            transition: var(--tr); font-family: 'Inter', sans-serif;
+        }
+        .btn-back:hover { border-color: var(--text); color: var(--text); }
+        .btn-back:disabled { opacity: 0.3; pointer-events: none; }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--purple), var(--accent));
+            border: none; border-radius: 50px;
+            padding: 12px 36px; font-size: 0.9rem;
+            font-weight: 700; color: #fff; cursor: pointer;
+            transition: var(--tr); font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(123,47,190,0.35);
+            position: relative; overflow: hidden;
+        }
+        .btn-next::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.12);
+            opacity: 0; transition: var(--tr);
+        }
+        .btn-next:hover::before { opacity: 1; }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,224,84,0.3); }
+        .btn-next:disabled { opacity: 0.4; pointer-events: none; transform: none; }
+
+        /* ── success screen ── */
+        .success-screen {
+            display: none; text-align: center;
+            flex-direction: column; align-items: center;
+            gap: 16px; animation: slideUp 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .success-screen.show { display: flex; }
+
+        .success-circle {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin-bottom: 8px;
+            animation: popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+        }
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem; font-weight: 900; color: var(--text);
+        }
+        .success-sub {
+            font-size: 1rem; color: var(--muted); font-weight: 300;
+            line-height: 1.6; max-width: 400px;
+        }
+        .btn-enter {
+            margin-top: 16px;
+            background: linear-gradient(135deg, var(--purple), var(--accent));
+            border: none; border-radius: 50px;
+            padding: 14px 48px; font-size: 1rem;
+            font-weight: 700; color: #fff; cursor: pointer;
+            transition: var(--tr); font-family: 'Inter', sans-serif;
+            box-shadow: 0 8px 30px rgba(0,224,84,0.25);
+        }
+        .btn-enter:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,224,84,0.35); }
+
+        /* ── mobile ── */
+        @media (max-width:640px) {
+            .navbar { padding: 16px 20px; }
+            .slide-card { padding: 32px 24px; }
+            .slide-question { font-size: 1.4rem; }
+            .options-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+            .options-grid.cols-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="logo">ARDOK</a>
+        <span class="nav-pill">✦ First-time Setup</span>
+    </nav>
+
+    <div class="quiz-wrapper">
+
+        <!-- Progress -->
+        <div class="progress-bar-wrap" id="progress-wrap">
+            <div class="progress-meta">
+                <span id="step-label">Question 1 of 6</span>
+                <span id="step-pct">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Slide -->
+        <div class="slide-card" id="slide-card"></div>
+
+        <!-- Success Screen -->
+        <div class="success-screen" id="success-screen">
+            <div class="success-circle">🎬</div>
+            <h2 class="success-title">You're all set!</h2>
+            <p class="success-sub">ARDOK now knows your vibe. Time to discover films that actually match your mood.</p>
+            <button class="btn-enter" onclick="enterARDOK()">Enter ARDOK →</button>
+        </div>
+
+    </div>
+
+    <script>
+    /* ═════════════════════════════════════════════
+       QUIZ CONFIG — 6 slides
+    ═════════════════════════════════════════════ */
+    const SLIDES = [
+        {
+            id:       'age',
+            emoji:    '🎂',
+            question: 'How old are you?',
+            hint:     'We use this to personalise your recommendations just right.',
+            type:     'slider',
+            min: 10, max: 65, default: 22
+        },
+        {
+            id:       'genres',
+            emoji:    '🎭',
+            question: 'What genres do you love?',
+            hint:     'Pick as many as you want.',
+            type:     'multi',
+            cols:     3,
+            options: [
+                { emoji:'😂', label:'Comedy',     color:'#f9e000' },
+                { emoji:'😢', label:'Drama',       color:'#60a5fa' },
+                { emoji:'🚀', label:'Sci-Fi',      color:'#40bcf4' },
+                { emoji:'👻', label:'Horror',      color:'#4ade80' },
+                { emoji:'⚔️', label:'Action',     color:'#f97316' },
+                { emoji:'🔪', label:'Thriller',    color:'#a855f7' },
+                { emoji:'💕', label:'Romance',     color:'#f472b6' },
+                { emoji:'🧙', label:'Fantasy',     color:'#34d399' },
+                { emoji:'🎬', label:'Documentary', color:'#38bdf8' },
+            ]
+        },
+        {
+            id:       'watchWith',
+            emoji:    '🛋️',
+            question: 'How do you usually watch movies?',
+            hint:     'Choose your viewing style.',
+            type:     'single',
+            cols:     2,
+            options: [
+                { emoji:'🙋', label:'Solo',       color:'#a855f7',   sub:'Just me, myself & I' },
+                { emoji:'👫', label:'With partner', color:'#f472b6', sub:'Romantic evenings' },
+                { emoji:'👯', label:'With friends', color:'#f97316', sub:'Group watch parties' },
+                { emoji:'👨‍👩‍👧', label:'Family night', color:'#40bcf4', sub:'Everyone together' },
+            ]
+        },
+        {
+            id:       'mood',
+            emoji:    '🌡️',
+            question: 'What mood are you usually in?',
+            hint:     'Your emotional default setting for movie nights.',
+            type:     'single',
+            cols:     2,
+            options: [
+                { emoji:'😊', label:'Happy & energetic',   color:'#f9e000', sub:'Ready to laugh' },
+                { emoji:'🧘', label:'Chill & relaxed',     color:'#34d399', sub:'Easy viewing' },
+                { emoji:'🤔', label:'Curious & thoughtful', color:'#38bdf8', sub:'Love deep stories' },
+                { emoji:'😱', label:'Thrilled & excited',  color:'#a855f7', sub:'Edge of my seat' },
+            ]
+        },
+        {
+            id:       'era',
+            emoji:    '📽️',
+            question: 'Which film era speaks to you?',
+            hint:     "There's no wrong answer — it's all about the vibe.",
+            type:     'single',
+            cols:     2,
+            options: [
+                { emoji:'🕰️', label:'Classics (pre-1990)',   color:'#f9e000', sub:'Timeless masterpieces' },
+                { emoji:'📼', label:"90s & 2000s",           color:'#f97316', sub:'Nostalgia hits different' },
+                { emoji:'🎞️', label:'2010s',                color:'#40bcf4', sub:'The golden streaming era' },
+                { emoji:'✨', label:'Latest releases',        color:'#4ade80', sub:'Always up to date' },
+            ]
+        },
+        {
+            id:       'dealBreaker',
+            emoji:    '🚫',
+            question: "What's a hard no for you?",
+            hint:     "We'll keep these out of your recommendations.",
+            type:     'multi',
+            cols:     3,
+            options: [
+                { emoji:'💉', label:'Gore / violence',    color:'#e50914' },
+                { emoji:'😢', label:'Heavy sadness',      color:'#60a5fa' },
+                { emoji:'😏', label:'Explicit content',   color:'#f472b6' },
+                { emoji:'🐌', label:'Slow pacing',        color:'#f9e000' },
+                { emoji:'👽', label:'Too abstract/artsy', color:'#a855f7' },
+                { emoji:'✅', label:"No restrictions",    color:'#4ade80' },
+            ]
+        },
+    ];
+
+    /* ═════════════════════════════════════════════
+       STATE
+    ═════════════════════════════════════════════ */
+    let current   = 0;
+    const answers = {};
+    const total   = SLIDES.length;
+
+    /* ═════════════════════════════════════════════
+       RENDER
+    ═════════════════════════════════════════════ */
+    function render() {
+        const s     = SLIDES[current];
+        const card  = document.getElementById('slide-card');
+        const pct   = Math.round((current / total) * 100);
+
+        // Progress
+        document.getElementById('step-label').textContent = `Question ${current + 1} of ${total}`;
+        document.getElementById('step-pct').textContent   = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+
+        // Build HTML
+        let bodyHTML = '';
+
+        if (s.type === 'slider') {
+            const val = answers[s.id] ?? s.default;
+            bodyHTML = `
+                <p class="age-display" id="age-val">${val}</p>
+                <p class="age-label">years old</p>
+                <input type="range" id="age-range" min="${s.min}" max="${s.max}" value="${val}"
+                       oninput="onSlider(this.value)">
+                <div class="range-labels">
+                    <span>${s.min}</span><span>${s.max}+</span>
+                </div>`;
+        } else {
+            const selected = answers[s.id] || [];
+            bodyHTML = `<div class="options-grid cols-${s.cols}">` +
+                s.options.map((o, i) => `
+                    <button class="opt-btn ${selected.includes(i) ? 'selected' : ''}"
+                            style="--opt-color:${o.color}"
+                            onclick="onSelect(${i},'${s.type}')">
+                        <span class="opt-emoji">${o.emoji}</span>
+                        <span class="opt-label">${o.label}${o.sub ? `<small>${o.sub}</small>` : ''}</span>
+                        <span class="opt-check">✓</span>
+                    </button>`).join('') +
+                '</div>';
+        }
+
+        card.innerHTML = `
+            <span class="slide-emoji">${s.emoji}</span>
+            <p class="slide-q-num">Step ${current + 1} / ${total}</p>
+            <h2 class="slide-question">${s.question}</h2>
+            <p class="slide-hint">${s.hint}</p>
+            ${bodyHTML}
+            <div class="slide-nav">
+                <button class="btn-back" onclick="goBack()" ${current === 0 ? 'disabled' : ''}>← Back</button>
+                <button class="btn-next" id="btn-next" onclick="goNext()" ${canProceed() ? '' : 'disabled'}>
+                    ${current === total - 1 ? 'Finish ✨' : 'Continue →'}
+                </button>
+            </div>`;
+
+        // Update range visual if slider
+        if (s.type === 'slider') syncSlider(answers[s.id] ?? s.default, s.min, s.max);
+    }
+
+    function syncSlider(val, min, max) {
+        const pct = ((val - min) / (max - min)) * 100;
+        const slider = document.getElementById('age-range');
+        if (slider) slider.style.background =
+            `linear-gradient(90deg, var(--accent) ${pct}%, var(--border) ${pct}%)`;
+    }
+
+    /* ═════════════════════════════════════════════
+       INTERACTIONS
+    ═════════════════════════════════════════════ */
+    function onSlider(val) {
+        const s = SLIDES[current];
+        answers[s.id] = parseInt(val);
+        document.getElementById('age-val').textContent = val;
+        syncSlider(parseInt(val), s.min, s.max);
+        updateNextBtn();
+    }
+
+    function onSelect(idx, type) {
+        const s = SLIDES[current];
+        if (!answers[s.id]) answers[s.id] = [];
+
+        if (type === 'single') {
+            answers[s.id] = [idx];
+        } else {
+            const pos = answers[s.id].indexOf(idx);
+            if (pos === -1) answers[s.id].push(idx);
+            else            answers[s.id].splice(pos, 1);
+        }
+        // Re-render selections only
+        document.querySelectorAll('.opt-btn').forEach((btn, i) => {
+            btn.classList.toggle('selected', answers[s.id].includes(i));
+        });
+        updateNextBtn();
+    }
+
+    function canProceed() {
+        const s = SLIDES[current];
+        if (s.type === 'slider') return true; // always has value
+        return answers[s.id] && answers[s.id].length > 0;
+    }
+
+    function updateNextBtn() {
+        const btn = document.getElementById('btn-next');
+        if (btn) btn.disabled = !canProceed();
+    }
+
+    function goNext() {
+        if (!canProceed()) return;
+        if (current < total - 1) {
+            animateOut(() => { current++; render(); });
+        } else {
+            submitQuiz();
+        }
+    }
+
+    function goBack() {
+        if (current > 0) {
+            animateOut(() => { current--; render(); });
+        }
+    }
+
+    function animateOut(cb) {
+        const card = document.getElementById('slide-card');
+        card.classList.add('exit');
+        setTimeout(() => { card.classList.remove('exit'); cb(); }, 280);
+    }
+
+    /* ═════════════════════════════════════════════
+       SUBMIT
+    ═════════════════════════════════════════════ */
+    async function submitQuiz() {
+        // Save to backend
+        try {
+            await fetch('/api/user/complete-quiz', { method: 'POST' });
+        } catch (e) { /* silent fail — still show success */ }
+
+        // Show success screen
+        document.getElementById('slide-card').style.display   = 'none';
+        document.getElementById('progress-wrap').style.display = 'none';
+        document.getElementById('success-screen').classList.add('show');
+    }
+
+    function enterARDOK() {
+        window.location.href = '/';
+    }
+
+    /* ═════════════════════════════════════════════
+       BOOT — check if quiz needed
+    ═════════════════════════════════════════════ */
+    (async function boot() {
+        try {
+            const r = await fetch('/api/user/status');
+            const d = await r.json();
+            if (!d.loggedIn) {
+                // Not logged in — redirect to login
+                window.location.href = '/oauth2/authorization/google';
+                return;
+            }
+            if (d.quizCompleted) {
+                // Already done quiz — go home
+                window.location.href = '/';
+                return;
+            }
+        } catch(e) { /* network error — show quiz anyway */ }
+
+        // First-time user: show quiz
+        render();
+    })();
+    </script>
+</body>
+</html>
